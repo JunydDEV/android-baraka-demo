@@ -23,10 +23,12 @@ class MainViewModel : ViewModel(){
 
     private fun getTickerItemsList(): List<TickerItem> {
         return mutableListOf<TickerItem>().apply {
-            add(TickerItem("Tesla - 20.00"))
-            add(TickerItem("Tesla - 20.00"))
-            add(TickerItem("Tesla - 20.00"))
-            add(TickerItem("Tesla - 20.00"))
+            add(TickerItem("Tesla1 - 20.00"))
+            add(TickerItem("Tesla2 - 20.00"))
+            add(TickerItem("Tesla3 - 20.00"))
+            add(TickerItem("Tesla4 - 20.00"))
+            add(TickerItem("Tesla5 - 20.00"))
+            add(TickerItem("Tesla6 - 20.00"))
         }
     }
 

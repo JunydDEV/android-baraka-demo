@@ -1,5 +1,6 @@
 package com.android.app.android_baraka_demo.presentation.main.adapters
 
+import android.app.Activity
 import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
@@ -14,6 +15,12 @@ import com.android.app.android_baraka_demo.data.models.news.NewsSection
 import com.android.app.android_baraka_demo.data.models.news.TopNewsSection
 import com.android.app.android_baraka_demo.data.models.tickers.TickerItem
 import com.android.app.android_baraka_demo.data.models.tickers.TickersSection
+import com.android.app.android_baraka_demo.presentation.main.adapters.TickersAdapter.Companion.DELAY_BETWEEN_SCROLL_MS
+import com.android.app.android_baraka_demo.presentation.main.adapters.TickersAdapter.Companion.DIRECTION_RIGHT
+import com.android.app.android_baraka_demo.presentation.main.adapters.TickersAdapter.Companion.SCROLL_DX
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 class MainAdapter(
     private val context: Context,
@@ -85,10 +92,15 @@ class MainAdapter(
         }
 
         fun addTickerList(tickerItemsList: List<TickerItem>) {
-            val tickersAdapter = TickersAdapter(tickerItemsList)
+            val tickersAdapter = TickersAdapter()
             recyclerViewTickers.apply {
                 layoutManager = getHorizontalLayoutManager()
                 adapter = tickersAdapter
+            }
+
+            tickersAdapter.submitList(tickerItemsList)
+            GlobalScope.launch {
+                autoScrollTickersList(recyclerViewTickers, tickersAdapter)
             }
         }
     }
@@ -125,5 +137,25 @@ class MainAdapter(
                 adapter = topNewsAdapter
             }
         }
+    }
+
+    private tailrec suspend fun autoScrollTickersList(
+        recyclerView: RecyclerView,
+        tickersAdapter: TickersAdapter
+    ) {
+        if (recyclerView.canScrollHorizontally(DIRECTION_RIGHT)) {
+            recyclerView.smoothScrollBy(SCROLL_DX, 0)
+        } else {
+            val firstPosition =
+                (recyclerView.layoutManager as LinearLayoutManager).findFirstVisibleItemPosition()
+            if (firstPosition != RecyclerView.NO_POSITION) {
+                val currentList = tickersAdapter.currentList
+                val secondPart = currentList.subList(0, firstPosition)
+                val firstPart = currentList.subList(firstPosition, currentList.size)
+                tickersAdapter.submitList(firstPart + secondPart)
+            }
+        }
+        delay(DELAY_BETWEEN_SCROLL_MS)
+        autoScrollTickersList(recyclerView, tickersAdapter)
     }
 }

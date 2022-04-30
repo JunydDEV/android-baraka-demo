@@ -3,14 +3,14 @@ package com.android.app.android_baraka_demo.presentation.main.adapters
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.android.app.android_baraka_demo.R
 import com.android.app.android_baraka_demo.data.models.tickers.TickerItem
 import com.google.android.material.chip.Chip
 
-class TickersAdapter(
-    val tickerItemsList: List<TickerItem>
-) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+class TickersAdapter : ListAdapter<TickerItem, RecyclerView.ViewHolder>(FeatureDiffCallback()) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         val layoutInflater = LayoutInflater.from(parent.context)
@@ -23,15 +23,25 @@ class TickersAdapter(
         tickerViewHolder.setTickerLabel()
     }
 
-    override fun getItemCount(): Int {
-        return tickerItemsList.size
-    }
-
     inner class TickerViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         private val ticker = view as Chip
 
-        fun setTickerLabel(){
-            ticker.text = tickerItemsList[adapterPosition].label
+        fun setTickerLabel() {
+            ticker.text = getItem(adapterPosition).label
         }
+    }
+
+    class FeatureDiffCallback : DiffUtil.ItemCallback<TickerItem>() {
+        override fun areItemsTheSame(oldItem: TickerItem, newItem: TickerItem): Boolean =
+            oldItem.label == newItem.label
+
+        override fun areContentsTheSame(oldItem: TickerItem, newItem: TickerItem): Boolean =
+            oldItem == newItem
+    }
+
+    companion object {
+        const val DELAY_BETWEEN_SCROLL_MS = 50L
+        const val SCROLL_DX = 5
+        const val DIRECTION_RIGHT = 1
     }
 }
