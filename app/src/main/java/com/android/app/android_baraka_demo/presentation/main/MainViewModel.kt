@@ -1,62 +1,42 @@
 package com.android.app.android_baraka_demo.presentation.main
 
+import android.util.Log
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.android.app.android_baraka_demo.data.models.Response
 import com.android.app.android_baraka_demo.data.models.Section
 import com.android.app.android_baraka_demo.data.models.news.NewsSection
 import com.android.app.android_baraka_demo.data.models.news.NewsItem
 import com.android.app.android_baraka_demo.data.models.news.TopNewsSection
 import com.android.app.android_baraka_demo.data.models.tickers.TickerItem
 import com.android.app.android_baraka_demo.data.models.tickers.TickersSection
+import com.android.app.android_baraka_demo.di.DependenciesProvider
 
-class MainViewModel : ViewModel(){
-    fun getSectionalsList(): List<Section> {
-        return mutableListOf<Section>().apply {
-            add(getTickersSection())
-            add(getTopNewsSection())
-            add(getAllNewsSection())
+class MainViewModel : ViewModel() {
+    private val mainUseCase = DependenciesProvider.provideMainUseCaseInstance()
+    private val sectionsList = mutableListOf<Section>()
+    private val _sectionsListLiveData = MutableLiveData<List<Section>>()
+    private val sectionsListLiveData = _sectionsListLiveData
+
+    fun getSectionalsList(): LiveData<List<Section>> {
+        return sectionsListLiveData
+    }
+
+    suspend fun getTickersSection() {
+        mainUseCase.fetchTickersList().collect {
+            val list = (it as Response.Success).data
+            sectionsList.add(TickersSection(list))
+            _sectionsListLiveData.postValue(sectionsList)
         }
     }
 
-    private fun getTickersSection(): Section {
-        return TickersSection(getTickerItemsList())
-    }
-
-    private fun getTickerItemsList(): List<TickerItem> {
-        return mutableListOf<TickerItem>().apply {
-            add(TickerItem("Tesla1 - 20.00"))
-            add(TickerItem("Tesla2 - 20.00"))
-            add(TickerItem("Tesla3 - 20.00"))
-            add(TickerItem("Tesla4 - 20.00"))
-            add(TickerItem("Tesla5 - 20.00"))
-            add(TickerItem("Tesla6 - 20.00"))
-        }
-    }
-
-    private fun getTopNewsSection(): Section {
-        return TopNewsSection(getTopNewsItemsList())
-    }
-
-    private fun getTopNewsItemsList(): List<NewsItem> {
-        return mutableListOf<NewsItem>().apply {
-            add(NewsItem("image","News Title", "News Description", "10/20/22"))
-            add(NewsItem("image","News Title", "News Description", "10/20/22"))
-            add(NewsItem("image","News Title", "News Description", "10/20/22"))
-            add(NewsItem("image","News Title", "News Description", "10/20/22"))
-            add(NewsItem("image","News Title", "News Description", "10/20/22"))
-        }
-    }
-
-    private fun getAllNewsSection(): NewsSection {
-        return NewsSection(getALlNewsItemsList())
-    }
-
-    private fun getALlNewsItemsList(): List<NewsItem> {
-        return mutableListOf<NewsItem>().apply {
-            add(NewsItem("image","News Title", "News Description", "10/20/22"))
-            add(NewsItem("image","News Title", "News Description", "10/20/22"))
-            add(NewsItem("image","News Title", "News Description", "10/20/22"))
-            add(NewsItem("image","News Title", "News Description", "10/20/22"))
-            add(NewsItem("image","News Title", "News Description", "10/20/22"))
+    suspend fun getNewsSection() {
+        mainUseCase.fetchNewsList().collect {
+            val list = (it as Response.Success).data
+            sectionsList.add(TopNewsSection(list))
+            sectionsList.add(NewsSection(list))
+            _sectionsListLiveData.postValue(sectionsList)
         }
     }
 }

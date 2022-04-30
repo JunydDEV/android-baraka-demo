@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginStart="0dp"
-    android:layout_marginTop="@dimen/minimumSpacing"
+    android:layout_marginTop="10dp"
     android:layout_marginEnd="@dimen/defaultSpacing">
 
     <com.google.android.material.imageview.ShapeableImageView
