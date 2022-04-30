@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">android-baraka-demo</string>
+    <string name="test_text">Test Text</string>
+</resources>
