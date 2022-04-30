@@ -18,9 +18,7 @@ import com.android.app.android_baraka_demo.data.models.tickers.TickersSection
 import com.android.app.android_baraka_demo.presentation.main.adapters.TickersAdapter.Companion.DELAY_BETWEEN_SCROLL_MS
 import com.android.app.android_baraka_demo.presentation.main.adapters.TickersAdapter.Companion.DIRECTION_RIGHT
 import com.android.app.android_baraka_demo.presentation.main.adapters.TickersAdapter.Companion.SCROLL_DX
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 
 class MainAdapter(
     private val context: Context,
@@ -99,7 +97,8 @@ class MainAdapter(
             }
 
             tickersAdapter.submitList(tickerItemsList)
-            GlobalScope.launch {
+
+            CoroutineScope(Dispatchers.IO).launch {
                 autoScrollTickersList(recyclerViewTickers, tickersAdapter)
             }
         }
