@@ -1,6 +1,5 @@
 package com.android.app.android_baraka_demo.presentation.main.adapters
 
-import android.app.Activity
 import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
@@ -9,6 +8,7 @@ import android.widget.TextView
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.android.app.android_baraka_demo.R
+import com.android.app.android_baraka_demo.data.models.ErrorItem
 import com.android.app.android_baraka_demo.data.models.Section
 import com.android.app.android_baraka_demo.data.models.news.NewsItem
 import com.android.app.android_baraka_demo.data.models.news.NewsSection
@@ -18,7 +18,10 @@ import com.android.app.android_baraka_demo.data.models.tickers.TickersSection
 import com.android.app.android_baraka_demo.presentation.main.adapters.TickersAdapter.Companion.DELAY_BETWEEN_SCROLL_MS
 import com.android.app.android_baraka_demo.presentation.main.adapters.TickersAdapter.Companion.DIRECTION_RIGHT
 import com.android.app.android_baraka_demo.presentation.main.adapters.TickersAdapter.Companion.SCROLL_DX
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 class MainAdapter(
     private val context: Context,
@@ -37,9 +40,17 @@ class MainAdapter(
                 val view = layoutInflater.inflate(R.layout.section_top_news, parent, false)
                 TopNewsSectionViewHolder(view)
             }
-            else -> {
+            Section.ALL_NEWS -> {
                 val view = layoutInflater.inflate(R.layout.section_news, parent, false)
                 NewsSectionViewHolder(view)
+            }
+            Section.ERROR -> {
+                val view = layoutInflater.inflate(R.layout.item_empty_layout, parent, false)
+                ErrorItemViewHolder(view)
+            }
+            else -> {
+                val view = layoutInflater.inflate(R.layout.item_loader, parent, false)
+                LoadingItemViewHolder(view)
             }
         }
     }
@@ -61,6 +72,10 @@ class MainAdapter(
                 val newsSection = sectionsList[position] as NewsSection
                 holder.addNewsList(newsSection.newsItemsList)
                 holder.setSectionTitle(newsSection.getLabel())
+            }
+            is ErrorItemViewHolder -> {
+                val errorItem = sectionsList[position] as ErrorItem
+                holder.bind(errorItem)
             }
         }
     }
@@ -156,5 +171,17 @@ class MainAdapter(
         }
         delay(DELAY_BETWEEN_SCROLL_MS)
         autoScrollTickersList(recyclerView, tickersAdapter)
+    }
+
+    inner class LoadingItemViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+        // Nothing to map here
+    }
+
+    inner class ErrorItemViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+        private val textViewEmptyLayout: TextView = view.findViewById(R.id.textViewEmptyLayout)
+
+        fun bind(errorItem: ErrorItem) {
+            textViewEmptyLayout.text = errorItem.message
+        }
     }
 }
