@@ -27,7 +27,10 @@ class TickersAdapter : ListAdapter<TickerItem, RecyclerView.ViewHolder>(FeatureD
         private val ticker = view as Chip
 
         fun setTickerLabel() {
-            ticker.text = getItem(adapterPosition).label
+            with(getItem(adapterPosition)) {
+                val text = "$label, $price $currency"
+                ticker.text = text
+            }
         }
     }
 

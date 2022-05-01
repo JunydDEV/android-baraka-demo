@@ -49,7 +49,7 @@ class RepositoryImpl(private val applicationContext: Context, private val apiSer
             val price = list.last().toDouble()
             val decimalFormat = DecimalFormat("#.##")
 
-            return TickerItem("${list.first()}, ${decimalFormat.format(price)} USD")
+            return TickerItem(list.first(), decimalFormat.format(price), "USD")
         } else {
             null
         }
