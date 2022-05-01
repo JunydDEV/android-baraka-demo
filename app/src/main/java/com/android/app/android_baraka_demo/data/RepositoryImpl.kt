@@ -11,40 +11,56 @@ import com.android.app.android_baraka_demo.data.models.tickers.TickerItem
 import com.android.app.android_baraka_demo.data.network.ApiService
 import com.android.app.android_baraka_demo.domain.Repository
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.FlowCollector
 import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.onStart
+import java.text.DecimalFormat
 
 class RepositoryImpl(private val applicationContext: Context, private val apiService: ApiService) : Repository {
 
     override suspend fun fetchTickersList(): Flow<Response<List<TickerItem>>> = flow {
-        apiService.getTicketsList(TICKERS_URL)
-            .onStart {
-                emit(Response.Loading())
-            }
-            .catch {
-                emit(Response.Error("Fetching tickers failed.."))
-            }
-            .collect {
-                emit(it)
-            }
+        try {
+            val request = apiService.getTickersList(TICKERS_URL)
+            val responseString = request.execute().body()?.string()
+            parseResponse(responseString)
+        } catch (e: Exception) {
+            emit(Response.Error(e.localizedMessage ?: getGeneralErrorMessage()))
+        }
+    }
+
+    private suspend fun FlowCollector<Response<List<TickerItem>>>.parseResponse(responseString: String?) {
+        responseString?.let { response ->
+            val list = response
+                .split("\n")
+                .map { row -> row.split(",") }
+                .map { stringsList ->
+                    buildTickerItem(stringsList)
+                }
+            emit(Response.Success(list.filterNotNull()))
+        }
+    }
+
+    private fun buildTickerItem(list: List<String>): TickerItem? {
+        return if(!list.last().contains("PRICE")) {
+            val price = list.last().toDouble()
+            val decimalFormat = DecimalFormat("#.##")
+
+            return TickerItem("${list.first()}, ${decimalFormat.format(price)} USD")
+        } else {
+            null
+        }
     }
 
     override suspend fun fetchNewsList(): Flow<Response<List<NewsItem>>> = flow {
-        if(!isOnline()) {
-            emit(Response.Error("Oops, internet is not available"))
-            return@flow
-        }
-
-        emit(Response.Loading())
         val response = apiService.getNewsList(NEWS_URL)
         if (response.status == "ok") {
             val newList = getNewsList(response)
             emit(Response.Success(newList))
         } else {
-            emit(Response.Error("Oops, something went wrong"))
+            emit(Response.Error(getGeneralErrorMessage()))
         }
     }
+
+    private fun getGeneralErrorMessage() = "Sorry, something went wrong"
 
     private fun getNewsList(response: NewsResponse): List<NewsItem> {
         val newList = response.articles.map {

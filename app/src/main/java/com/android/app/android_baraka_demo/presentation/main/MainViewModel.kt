@@ -27,8 +27,16 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     suspend fun getTickersSection() {
         mainUseCase.fetchTickersList().collect {
-            if(it is Response.Success) {
-                publishTickersResponse(it)
+            when (it) {
+                is Response.Loading -> {
+                    publishLoadingResponse()
+                }
+                is Response.Success -> {
+                    publishTickersResponse(it)
+                }
+                else -> {
+                    publishErrorResponse(it)
+                }
             }
         }
     }
@@ -55,7 +63,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         sectionsListLiveData.postValue(sectionsList)
     }
 
-    private fun publishErrorResponse(it: Response<List<NewsItem>>) {
+    private fun publishErrorResponse(it: Response<List<Any>>) {
         sectionsList.clear() // To remove the loading indicator or other data
         val errorMessage = (it as Response.Error).message
         sectionsList.add(ErrorItem(errorMessage))
@@ -66,12 +74,13 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         it.data.let {
             sectionsList.add(TickersSection(it))
         }
-        sectionsListLiveData.postValue(sectionsList)
     }
 
     private fun publishNewsResponse(it: Response.Success<List<NewsItem>>) {
         it.data.let {
-            sectionsList.clear() // To remove the loading indicator or error item
+            sectionsList.removeAll { section->
+                section !is TickersSection
+            }
             getTopNews(it)
             sectionsList.add(NewsSection(it))
         }
