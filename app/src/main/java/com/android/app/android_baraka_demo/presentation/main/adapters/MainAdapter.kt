@@ -28,6 +28,9 @@ class MainAdapter(
     private val sectionsList: List<Section>
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
+    private var firstPosition: Int = 0
+    private lateinit var tickersAdapter: TickersAdapter
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         val layoutInflater = LayoutInflater.from(context)
 
@@ -105,17 +108,24 @@ class MainAdapter(
         }
 
         fun addTickerList(tickerItemsList: List<TickerItem>) {
-            val tickersAdapter = TickersAdapter()
+            tickersAdapter = TickersAdapter()
             recyclerViewTickers.apply {
                 layoutManager = getHorizontalLayoutManager()
                 adapter = tickersAdapter
             }
 
             tickersAdapter.submitList(tickerItemsList)
+            /*recyclerViewTickers.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+                override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                    super.onScrolled(recyclerView, dx, dy)
+                    firstPosition =
+                        (recyclerView.layoutManager as LinearLayoutManager).findFirstVisibleItemPosition()
+                }
+            })*/
 
-            /*CoroutineScope(Dispatchers.IO).launch {
+            CoroutineScope(Dispatchers.IO).launch {
                 autoScrollTickersList(recyclerViewTickers, tickersAdapter)
-            }*/
+            }
         }
     }
 
@@ -160,7 +170,7 @@ class MainAdapter(
         if (recyclerView.canScrollHorizontally(DIRECTION_RIGHT)) {
             recyclerView.smoothScrollBy(SCROLL_DX, 0)
         } else {
-            val firstPosition =
+            firstPosition =
                 (recyclerView.layoutManager as LinearLayoutManager).findFirstVisibleItemPosition()
             if (firstPosition != RecyclerView.NO_POSITION) {
                 val currentList = tickersAdapter.currentList
@@ -183,5 +193,9 @@ class MainAdapter(
         fun bind(errorItem: ErrorItem) {
             textViewEmptyLayout.text = errorItem.message
         }
+    }
+
+    fun updateNewList() {
+        tickersAdapter.notifyItemRangeChanged(firstPosition, tickersAdapter.currentList.size)
     }
 }

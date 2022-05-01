@@ -15,6 +15,7 @@ import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity() {
 
+    private lateinit var mainAdapter: MainAdapter
     private lateinit var mainViewModel:MainViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -28,11 +29,12 @@ class MainActivity : AppCompatActivity() {
         recyclerView.isNestedScrollingEnabled = true
 
         mainViewModel.getSectionalsList().observe(this) {
-            recyclerView.adapter = MainAdapter(this@MainActivity, it)
+            mainAdapter = MainAdapter(this@MainActivity, it)
+            recyclerView.adapter = mainAdapter
         }
 
         mainViewModel.getTickerItemsLiveData().observe(this) {
-            recyclerView.adapter?.notifyItemChanged(0)
+            mainAdapter.updateNewList()
         }
 
         CoroutineScope(Dispatchers.IO).launch {
