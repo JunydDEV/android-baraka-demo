@@ -1,5 +1,5 @@
 # Braka Demo App
-  In this project I have try to implemented the given requirements by Baraka.
+  In this project I have tried to implemented all the given requirements of Baraka.
 
 <img src="https://github.com/JunydDEV/android-baraka-demo/blob/master/screen_shot.png" alt="test image size" height="50%" width="50%">
 
