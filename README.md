@@ -22,3 +22,5 @@
 <p> ✅ Unit Testing</p>
 <p> ✅ UI Testing</p>
 
+# Testing Report
+<img src="https://github.com/JunydDEV/android-baraka-demo/blob/master/testing_report.png" alt="test image size" height="50%" width="50%">
