@@ -1,28 +1,16 @@
-package com.android.app.android_baraka_demo.data.network;
+package com.android.app.android_baraka_demo.data.network
 
-import retrofit2.Retrofit;
-import retrofit2.converter.gson.GsonConverterFactory;
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
 
-public class RetrofitClient {
-    private static RetrofitClient instance = null;
-    private final ApiService myApiService;
+object RetrofitClient {
 
-    private RetrofitClient() {
-        Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl("https://www.demo.com/")
-                .addConverterFactory(GsonConverterFactory.create())
-                .build();
-        myApiService = retrofit.create(ApiService.class);
-    }
+    fun getApiService(): ApiService {
+        val retrofit = Retrofit.Builder()
+            .baseUrl("https://www.demo.com/")
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
 
-    public static synchronized RetrofitClient getInstance() {
-        if (instance == null) {
-            instance = new RetrofitClient();
-        }
-        return instance;
-    }
-
-    public ApiService getService() {
-        return myApiService;
+        return retrofit.create(ApiService::class.java)
     }
 }
