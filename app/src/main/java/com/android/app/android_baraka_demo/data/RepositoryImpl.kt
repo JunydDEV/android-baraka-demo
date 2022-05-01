@@ -18,6 +18,11 @@ import java.text.DecimalFormat
 class RepositoryImpl(private val applicationContext: Context, private val apiService: ApiService) : Repository {
 
     override suspend fun fetchTickersList(): Flow<Response<List<TickerItem>>> = flow {
+        if(!isOnline()){
+            emit(Response.Error("Sorry, internet is not available"))
+            return@flow
+        }
+
         try {
             val request = apiService.getTickersList(TICKERS_URL)
             val responseString = request.execute().body()?.string()
@@ -51,6 +56,11 @@ class RepositoryImpl(private val applicationContext: Context, private val apiSer
     }
 
     override suspend fun fetchNewsList(): Flow<Response<List<NewsItem>>> = flow {
+        if(!isOnline()){
+            emit(Response.Error("Sorry, internet is not available"))
+            return@flow
+        }
+
         val response = apiService.getNewsList(NEWS_URL)
         if (response.status == "ok") {
             val newList = getNewsList(response)

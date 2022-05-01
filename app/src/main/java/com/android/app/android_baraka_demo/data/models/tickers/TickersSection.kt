@@ -9,6 +9,6 @@ data class TickersSection(val tickerItemsList: List<TickerItem>) : Section {
     }
 
     override fun getLabel(): String {
-        return "Tickers"
+        return "Stock Prices"
     }
 }
