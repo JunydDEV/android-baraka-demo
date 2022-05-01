@@ -1,6 +1,5 @@
 package com.android.app.android_baraka_demo.presentation.main
 
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -16,8 +15,7 @@ import com.android.app.android_baraka_demo.di.DependenciesProvider
 class MainViewModel : ViewModel() {
     private val mainUseCase = DependenciesProvider.provideMainUseCaseInstance()
     private val sectionsList = mutableListOf<Section>()
-    private val _sectionsListLiveData = MutableLiveData<List<Section>>()
-    private val sectionsListLiveData = _sectionsListLiveData
+    private val sectionsListLiveData = MutableLiveData<List<Section>>()
 
     fun getSectionalsList(): LiveData<List<Section>> {
         return sectionsListLiveData
@@ -25,18 +23,37 @@ class MainViewModel : ViewModel() {
 
     suspend fun getTickersSection() {
         mainUseCase.fetchTickersList().collect {
-            val list = (it as Response.Success).data
-            sectionsList.add(TickersSection(list))
-            _sectionsListLiveData.postValue(sectionsList)
+            if(it is Response.Success) {
+                publishTickersResponse(it)
+            }
         }
     }
 
     suspend fun getNewsSection() {
         mainUseCase.fetchNewsList().collect {
-            val list = (it as Response.Success).data
-            sectionsList.add(TopNewsSection(list))
-            sectionsList.add(NewsSection(list))
-            _sectionsListLiveData.postValue(sectionsList)
+            if(it is Response.Success) {
+                publishNewsResponse(it)
+            }
         }
+    }
+
+    private fun publishTickersResponse(it: Response.Success<List<TickerItem>>) {
+        it.data.let {
+            sectionsList.add(TickersSection(it))
+        }
+        sectionsListLiveData.postValue(sectionsList)
+    }
+
+    private fun publishNewsResponse(it: Response.Success<List<NewsItem>>) {
+        it.data.let {
+            getTopNews(it)
+            sectionsList.add(NewsSection(it))
+        }
+        sectionsListLiveData.postValue(sectionsList)
+    }
+
+    private fun getTopNews(it: List<NewsItem>) {
+        val listOfTopSixNews = it.subList(0, 6)
+        sectionsList.add(TopNewsSection(listOfTopSixNews))
     }
 }

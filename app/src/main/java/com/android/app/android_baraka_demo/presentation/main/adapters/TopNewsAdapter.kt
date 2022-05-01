@@ -6,6 +6,7 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import coil.load
 import com.android.app.android_baraka_demo.R
 import com.android.app.android_baraka_demo.data.models.news.NewsItem
 
@@ -33,7 +34,17 @@ class TopNewsAdapter(
         private val textViewNewsTitle = view.findViewById<TextView>(R.id.textViewNewsTitle)
 
         fun setNewsList() {
-            textViewNewsTitle.text = topNewsItemsList[adapterPosition].newsTitle
+            with(topNewsItemsList[adapterPosition]) {
+                loadNewsImage(this)
+                textViewNewsTitle.text = newsTitle
+            }
+        }
+
+        private fun loadNewsImage(newsItem: NewsItem) {
+            imageViewNewsImage.load(newsItem.newsImage) {
+                crossfade(true)
+                placeholder(R.drawable.news_image)
+            }
         }
     }
 }

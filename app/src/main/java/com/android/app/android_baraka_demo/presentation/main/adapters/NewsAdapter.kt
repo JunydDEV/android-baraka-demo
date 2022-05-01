@@ -6,6 +6,8 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import coil.load
+import coil.transform.RoundedCornersTransformation
 import com.android.app.android_baraka_demo.R
 import com.android.app.android_baraka_demo.data.models.news.NewsItem
 
@@ -21,7 +23,7 @@ class NewsAdapter(
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         val topNewsViewHolder = holder as TopNewsViewHolder
-        topNewsViewHolder.setNewsList()
+        topNewsViewHolder.bindNews()
     }
 
     override fun getItemCount(): Int {
@@ -32,10 +34,22 @@ class NewsAdapter(
         private val imageViewNewsImage = view.findViewById<ImageView>(R.id.imageViewNewsImage)
         private val textViewNewsTitle = view.findViewById<TextView>(R.id.textViewNewsTitle)
         private val textViewNewsDescription = view.findViewById<TextView>(R.id.textViewNewsDescription)
+        private val textViewNewsDate = view.findViewById<TextView>(R.id.textViewNewsDate)
 
-        fun setNewsList() {
-            textViewNewsTitle.text = newsItemsList[adapterPosition].newsTitle
-            textViewNewsDescription.text = newsItemsList[adapterPosition].newsDescription
+        fun bindNews() {
+            with(newsItemsList[adapterPosition]) {
+                loadNewsImage(this)
+                textViewNewsTitle.text = newsTitle
+                textViewNewsDescription.text = newsDescription
+                textViewNewsDate.text = date
+            }
+        }
+
+        private fun loadNewsImage(newsItem: NewsItem) {
+            imageViewNewsImage.load(newsItem.newsImage) {
+                crossfade(true)
+                placeholder(R.drawable.news_image)
+            }
         }
     }
 }

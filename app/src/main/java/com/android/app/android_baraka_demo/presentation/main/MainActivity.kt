@@ -30,7 +30,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         CoroutineScope(Dispatchers.IO).launch {
-            mainViewModel.getTickersSection()
+            //mainViewModel.getTickersSection()
             mainViewModel.getNewsSection()
         }
     }

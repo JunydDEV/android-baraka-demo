@@ -3,13 +3,11 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginStart="0dp"
-    android:layout_marginTop="10dp"
-    android:layout_marginEnd="@dimen/defaultSpacing">
+    android:layout_marginTop="10dp">
 
     <com.google.android.material.imageview.ShapeableImageView
         android:id="@+id/imageViewNewsImage"
-        android:layout_width="100dp"
+        android:layout_width="80dp"
         android:layout_height="80dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
@@ -20,18 +18,40 @@
 
     <androidx.appcompat.widget.AppCompatTextView
         android:id="@+id/textViewNewsTitle"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="@dimen/defaultSpacing"
+        android:layout_marginStart="@dimen/minimumSpacing"
+        android:maxLines="1"
+        android:ellipsize="end"
+        android:textColor="@color/black"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/imageViewNewsImage"
         app:layout_constraintTop_toTopOf="parent" />
 
     <androidx.appcompat.widget.AppCompatTextView
         android:id="@+id/textViewNewsDescription"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="@dimen/defaultSpacing"
+        android:layout_marginStart="@dimen/minimumSpacing"
+        android:maxLines="2"
+        android:ellipsize="end"
+        android:textSize="12sp"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/imageViewNewsImage"
         app:layout_constraintTop_toBottomOf="@+id/textViewNewsTitle" />
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/textViewNewsDate"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/minimumSpacing"
+        android:maxLines="1"
+        android:ellipsize="end"
+        android:textColor="@color/black"
+        android:textSize="12sp"
+        android:layout_marginTop="@dimen/minimumSpacing"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/imageViewNewsImage"
+        app:layout_constraintTop_toBottomOf="@+id/textViewNewsDescription" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
