@@ -113,9 +113,9 @@ class MainAdapter(
 
             tickersAdapter.submitList(tickerItemsList)
 
-            CoroutineScope(Dispatchers.IO).launch {
+            /*CoroutineScope(Dispatchers.IO).launch {
                 autoScrollTickersList(recyclerViewTickers, tickersAdapter)
-            }
+            }*/
         }
     }
 

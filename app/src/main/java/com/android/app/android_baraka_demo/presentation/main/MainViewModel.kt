@@ -14,6 +14,7 @@ import com.android.app.android_baraka_demo.data.models.news.TopNewsSection
 import com.android.app.android_baraka_demo.data.models.tickers.TickerItem
 import com.android.app.android_baraka_demo.data.models.tickers.TickersSection
 import com.android.app.android_baraka_demo.di.DependenciesProvider
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.onCompletion
 import kotlinx.coroutines.flow.onStart
@@ -23,9 +24,14 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         DependenciesProvider.provideMainUseCaseInstance(application.applicationContext)
     private val sectionsList = mutableListOf<Section>()
     private val sectionsListLiveData = MutableLiveData<List<Section>>()
+    private val tickerItemsLiveData = MutableLiveData<List<TickerItem>>()
 
     fun getSectionalsList(): LiveData<List<Section>> {
         return sectionsListLiveData
+    }
+
+    fun getTickerItemsLiveData(): LiveData<List<TickerItem>> {
+        return tickerItemsLiveData
     }
 
     private suspend fun getTickersSectionData() {
@@ -55,6 +61,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         mainUseCase.fetchNewsList()
             .onCompletion {
                 hideLoadingIndicator()
+                scheduleStockPricesUpdates()
             }
             .catch {
                 hideLoadingIndicator()
@@ -93,7 +100,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     private fun publishTickersResponse(it: Response.Success<List<TickerItem>>) {
         it.data.let {
-            sectionsList.add(TickersSection(it))
+            sectionsList.add(TickersSection(it.toMutableList()))
             sectionsListLiveData.postValue(sectionsList)
         }
     }
@@ -113,5 +120,32 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     suspend fun fetchContent() {
         getTickersSectionData()
+    }
+
+    private suspend fun getStockPricesUpdates() {
+        mainUseCase.fetchTickersList()
+            .collect {
+                when (it) {
+                    is Response.Success -> {
+                        it.data.let {newItems->
+                            val list = sectionsList.filterIsInstance(TickersSection::class.java).first()
+                            list.tickerItemsList.clear()
+                            list.tickerItemsList.addAll(newItems)
+                            tickerItemsLiveData.postValue(list.tickerItemsList)
+                        }
+                    }
+                    else -> {
+                        publishErrorResponse(it)
+                    }
+                }
+            }
+    }
+
+
+    private suspend fun scheduleStockPricesUpdates() {
+        while (true) {
+            delay(10000L)
+            getStockPricesUpdates()
+        }
     }
 }
