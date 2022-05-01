@@ -1,6 +1,8 @@
 package com.android.app.android_baraka_demo.presentation.main
 
+import android.annotation.SuppressLint
 import android.os.Bundle
+import android.os.Parcelable
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -27,6 +29,10 @@ class MainActivity : AppCompatActivity() {
 
         mainViewModel.getSectionalsList().observe(this) {
             recyclerView.adapter = MainAdapter(this@MainActivity, it)
+        }
+
+        mainViewModel.getTickerItemsLiveData().observe(this) {
+            recyclerView.adapter?.notifyItemChanged(0)
         }
 
         CoroutineScope(Dispatchers.IO).launch {
